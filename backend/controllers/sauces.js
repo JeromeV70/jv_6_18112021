@@ -55,48 +55,44 @@ exports.likeSauce = (req, res, next) => {
     const sauceId = req.params.id;
     const userId = req.body.userId;
     const like = req.body.like;
-    const liked = 0;
-    //console.log(sauceId,userId,like,liked);
 
     Thing.findOne({ _id: sauceId })
       .then(thing => {
-        if(thing.usersLiked.indexOf(userId)>=0){liked = 1};
-        if(thing.usersDisliked.indexOf(userId)>=0){liked = -1};
-        if(like==liked){res.status(201)};
-        //console.log(thing);
+        const usersLiked = thing.usersLiked.indexOf(userId);
+        const usersDisliked = thing.usersDisliked.indexOf(userId);
 
         switch(true){
-        case (liked==0 && like==1):
+        case (usersLiked==-1 && usersDisliked==-1 && like==1):
             Thing.updateOne({_id: sauceId},{$push:{usersLiked:userId},$inc:{likes:1}})
             .then(() => res.status(200).json({ message: 'Ok'}))
-            .catch(error => res.status(400).json({ error,message: '1111' }));
+            .catch(error => res.status(400).json({ error }));
             break;
-        case (liked==0 && like==-1):
+        case (usersLiked==-1 && usersDisliked==-1 && like==-1):
             Thing.updateOne({_id: sauceId},{$push:{usersDisliked:userId},$inc:{dislikes:1}})
             .then(() => res.status(200).json({ message: 'Ok'}))
-            .catch(error => res.status(400).json({ error,message: '2222' }));
+            .catch(error => res.status(400).json({ error }));
             break;
-        case (liked==1 && like==0):
+        case (usersLiked>-1 && like==0):
             Thing.updateOne({_id: sauceId},{$pull:{usersLiked:userId},$inc:{likes:-1}})
             .then(() => res.status(200).json({ message: 'Ok'}))
-            .catch(error => res.status(400).json({ error,message: '3333' }));
+            .catch(error => res.status(400).json({ error }));
             break;
-        case (liked==1 && like==-1):
+        case (usersLiked>-1 && like==-1):
             Thing.updateOne({_id: sauceId},{$push:{usersDisliked:userId},$pull:{usersLiked:userId},$inc:{likes:-1},$inc:{dislikes:1}})
             .then(() => res.status(200).json({ message: 'Ok'}))
-            .catch(error => res.status(400).json({ error,message: '4444' }));
+            .catch(error => res.status(400).json({ error }));
             break;
-        case (liked==-1 && like==0):
+        case (usersDisliked>-1 && like==0):
             Thing.updateOne({_id: sauceId},{$pull:{usersDisliked:userId},$inc:{dislikes:-1}})
             .then(() => res.status(200).json({ message: 'Ok'}))
-            .catch(error => res.status(400).json({ error,message: '5555' }));
+            .catch(error => res.status(400).json({ error }));
             break;
-        case (liked==-1 && like==1):
+        case (usersDisliked>-1 && like==1):
             Thing.updateOne({_id: sauceId},{$push:{usersLiked:userId},$pull:{usersDisliked:userId},$inc:{likes:1},$inc:{dislikes:-1}})
             .then(() => res.status(200).json({ message: 'Ok'}))
-            .catch(error => res.status(400).json({ error,message: '6666' }));
+            .catch(error => res.status(400).json({ error }));
             break;
         }
       })
-      .catch(error => res.status(400).json({ error,message:'messagederreur' }));
+      .catch(error => res.status(400).json({ error }));
 }
