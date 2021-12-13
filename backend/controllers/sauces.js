@@ -64,36 +64,36 @@ exports.likeSauce = (req, res, next) => {
 
     Thing.findOne({ _id: sauceId })
       .then(thing => {
-        const usersLiked = thing.usersLiked.indexOf(userId);
-        const usersDisliked = thing.usersDisliked.indexOf(userId);
+        const userLiked = thing.usersLiked.indexOf(userId);
+        const userDisliked = thing.usersDisliked.indexOf(userId);
 
         switch(true){
-        case (usersLiked==-1 && usersDisliked==-1 && like==1):
+        case (userLiked==-1 && userDisliked==-1 && like==1):
             Thing.updateOne({_id: sauceId},{$push:{usersLiked:userId},$inc:{likes:1}})
             .then(() => res.status(200).json({ message: 'Ok'}))
             .catch(error => res.status(400).json({ error }));
             break;
-        case (usersLiked==-1 && usersDisliked==-1 && like==-1):
+        case (userLiked==-1 && userDisliked==-1 && like==-1):
             Thing.updateOne({_id: sauceId},{$push:{usersDisliked:userId},$inc:{dislikes:1}})
             .then(() => res.status(200).json({ message: 'Ok'}))
             .catch(error => res.status(400).json({ error }));
             break;
-        case (usersLiked>-1 && like==0):
+        case (userLiked>-1 && like==0):
             Thing.updateOne({_id: sauceId},{$pull:{usersLiked:userId},$inc:{likes:-1}})
             .then(() => res.status(200).json({ message: 'Ok'}))
             .catch(error => res.status(400).json({ error }));
             break;
-        case (usersLiked>-1 && like==-1):
+        case (userLiked>-1 && like==-1):
             Thing.updateOne({_id: sauceId},{$push:{usersDisliked:userId},$pull:{usersLiked:userId},$inc:{likes:-1},$inc:{dislikes:1}})
             .then(() => res.status(200).json({ message: 'Ok'}))
             .catch(error => res.status(400).json({ error }));
             break;
-        case (usersDisliked>-1 && like==0):
+        case (userDisliked>-1 && like==0):
             Thing.updateOne({_id: sauceId},{$pull:{usersDisliked:userId},$inc:{dislikes:-1}})
             .then(() => res.status(200).json({ message: 'Ok'}))
             .catch(error => res.status(400).json({ error }));
             break;
-        case (usersDisliked>-1 && like==1):
+        case (userDisliked>-1 && like==1):
             Thing.updateOne({_id: sauceId},{$push:{usersLiked:userId},$pull:{usersDisliked:userId},$inc:{likes:1},$inc:{dislikes:-1}})
             .then(() => res.status(200).json({ message: 'Ok'}))
             .catch(error => res.status(400).json({ error }));
