@@ -1,9 +1,10 @@
 #!/bin/sh
 kill -9 $(lsof -t -i tcp:3000,8081)
 cd backend;
-npm install;
+sudo npm install;
 nodemon server&
 cd ../frontend;
-npm install;
+sudo npm install;
 npm start&
+sleep 5;
 xdg-open http://localhost:8081
