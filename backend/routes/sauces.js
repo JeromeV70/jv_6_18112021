@@ -9,7 +9,6 @@ router.get('/', auth, saucesCtrl.getAllThings);
 router.post('/', auth, multer, saucesCtrl.createThing);
 router.get('/:id', auth, saucesCtrl.getOneThing);
 router.put('/:id', auth, multer, saucesCtrl.modifyThing);
-// route pour likes
 router.post('/:id/like', auth, saucesCtrl.likeSauce);
 router.delete('/:id', auth, saucesCtrl.deleteThing);
 

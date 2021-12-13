@@ -3,9 +3,12 @@ const fs = require('fs');
 
 exports.createThing = (req, res, next) => {
   const thingObject = JSON.parse(req.body.sauce);
+  // l'id est généré automatiquement par la BDD
   delete thingObject._id;
+  // initialisation des likes à 0
   thingObject.likes=0;
   thingObject.dislikes=0;
+  // création de l'objet à insérer dans la BDD
   const thing = new Thing({
     ...thingObject,
     imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
@@ -22,20 +25,23 @@ exports.getOneThing = (req, res, next) => {
   }
 
 exports.modifyThing = (req, res, next) => {
-  const thingObject = req.file ?
-    {
-      ...JSON.parse(req.body.sauce),
-      imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-    } : { ...req.body };
+
+  let thingObject = {};
+  if(req.file){
+    thingObject = {...JSON.parse(req.body.sauce),imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`};
     Thing.findOne({ _id: req.params.id})
       .then(thing => {
         const filename = thing.imageUrl.split('/images/')[1];
-        fs.unlink(`images/${filename}`, () => {
-        Thing.updateOne({ _id: req.params.id }, { ...thingObject, _id: req.params.id })
-          .then(() => res.status(200).json({ message: 'Objet modifié !'}))
-          .catch(error => res.status(400).json({ error }))});
+        fs.unlink(`images/${filename}`,(err)=>{if (err) throw err;})
       })
       .catch(error => res.status(400).json({ error }));
+  }
+  else{
+    thingObject = { ...req.body };
+  }
+  Thing.updateOne({ _id: req.params.id }, { ...thingObject, _id: req.params.id })
+  .then(() => res.status(200).json({ message: 'Objet modifié !'}))
+  .catch(error => res.status(400).json({ error }));
 };
 
 exports.deleteThing = (req, res, next) => {
