@@ -2,5 +2,5 @@
 cd backend;
 nodemon server;
 cd ../frontend;
-npm start;
+npm start
 google-chrome-stable http://www.localhost:8081
