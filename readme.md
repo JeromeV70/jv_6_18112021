@@ -1,9 +1,19 @@
-Pour lancer le projet 6 :
+**Pour lancer le projet 6 :**
 
-cd /backend
+Récupérer le fichier .env et les images dans l'archive .zip envoyée pour la soutenance.
+Le fichier **.env** doit être extrait dans le répertoire **/backend**
+Les **images** doivent être extraites dans le répertoire **/backend/images**
 
-nodemon server
+Sous **Ubuntu**, dans le répertoire principal du projet, lancer le script **start.sh** dans un terminal avec la commande :
+$ sh start.sh
 
-cd /frontend
+Sinon, depuis le répertoire principal :
 
-npm start
+$ cd /backend
+$ npm install
+$ nodemon server
+
+$ cd /frontend
+$ npm install
+$ npm start
+

@@ -27,11 +27,14 @@ exports.getOneThing = (req, res, next) => {
 exports.modifyThing = (req, res, next) => {
 
   let thingObject = {};
+  // Si nouvelle image
   if(req.file){
     thingObject = {...JSON.parse(req.body.sauce),imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`};
+    // recherche du lien de l'ancienne image pour suppression
     Thing.findOne({ _id: req.params.id})
       .then(thing => {
         const filename = thing.imageUrl.split('/images/')[1];
+        // suppression de l'ancienne image
         fs.unlink(`images/${filename}`,(err)=>{if (err) throw err;})
       })
       .catch(error => res.status(400).json({ error }));
@@ -70,35 +73,42 @@ exports.likeSauce = (req, res, next) => {
 
     Thing.findOne({ _id: sauceId })
       .then(thing => {
+        // recherche de userId dans les likes ou dislike de la sauce ( -1 == pas d'occurence )
         const userLiked = thing.usersLiked.indexOf(userId);
         const userDisliked = thing.usersDisliked.indexOf(userId);
 
         switch(true){
+          // pas déjà liké ni disliké, et demande de like
         case (userLiked==-1 && userDisliked==-1 && like==1):
             Thing.updateOne({_id: sauceId},{$push:{usersLiked:userId},$inc:{likes:1}})
             .then(() => res.status(200).json({ message: 'Ok'}))
             .catch(error => res.status(400).json({ error }));
             break;
+          // pas déjà liké ni disliké, et demande de dislike
         case (userLiked==-1 && userDisliked==-1 && like==-1):
             Thing.updateOne({_id: sauceId},{$push:{usersDisliked:userId},$inc:{dislikes:1}})
             .then(() => res.status(200).json({ message: 'Ok'}))
             .catch(error => res.status(400).json({ error }));
             break;
+          // déjà liké, et demande de retrait du like
         case (userLiked>-1 && like==0):
             Thing.updateOne({_id: sauceId},{$pull:{usersLiked:userId},$inc:{likes:-1}})
             .then(() => res.status(200).json({ message: 'Ok'}))
             .catch(error => res.status(400).json({ error }));
             break;
+          // déjà liké, et demande de dislike (fonction bloquée en frontend)
         case (userLiked>-1 && like==-1):
             Thing.updateOne({_id: sauceId},{$push:{usersDisliked:userId},$pull:{usersLiked:userId},$inc:{likes:-1},$inc:{dislikes:1}})
             .then(() => res.status(200).json({ message: 'Ok'}))
             .catch(error => res.status(400).json({ error }));
             break;
+          // déjà disliké, et demande de retrait du dislike
         case (userDisliked>-1 && like==0):
             Thing.updateOne({_id: sauceId},{$pull:{usersDisliked:userId},$inc:{dislikes:-1}})
             .then(() => res.status(200).json({ message: 'Ok'}))
             .catch(error => res.status(400).json({ error }));
             break;
+          // déjà disliké, et demande de like (fonction bloquée en frontend)
         case (userDisliked>-1 && like==1):
             Thing.updateOne({_id: sauceId},{$push:{usersLiked:userId},$pull:{usersDisliked:userId},$inc:{likes:1},$inc:{dislikes:-1}})
             .then(() => res.status(200).json({ message: 'Ok'}))

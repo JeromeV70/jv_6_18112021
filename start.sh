@@ -1,6 +1,9 @@
 #!/bin/sh
+kill -9 $(lsof -t -i tcp:3000,8081)
 cd backend;
-nodemon server;
+npm install;
+nodemon server&
 cd ../frontend;
-npm start
-google-chrome-stable http://www.localhost:8081
+npm install;
+npm start&
+xdg-open http://localhost:8081
