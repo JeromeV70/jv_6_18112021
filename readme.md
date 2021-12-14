@@ -22,7 +22,9 @@ $ nodemon server
 
 $ cd /frontend
 
-$ npm install
+$ npm install 
+
+$ npm install --save-dev run-script-os
 
 $ npm start
 
