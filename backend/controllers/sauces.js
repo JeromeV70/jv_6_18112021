@@ -20,7 +20,17 @@ exports.createThing = (req, res, next) => {
 
 exports.getOneThing = (req, res, next) => {
     Thing.findOne({ _id: req.params.id})
-      .then(thing => res.status(200).json(thing))
+      .then(thing => {
+        // recherche de userId dans les likes ou dislike de la sauce ( -1 == pas d'occurence )
+        const userLiked = thing.usersLiked.indexOf(req.auth.userId);
+        const userDisliked = thing.usersDisliked.indexOf(req.auth.userId);
+        // n'afficher que l'identifiant de l'utilisateur dans la liste des likes et dislikes, pour confidentialité.
+        if (userLiked > -1){thing.usersLiked = [req.auth.userId]}
+        else {thing.usersLiked = [];}
+        if (userDisliked > -1){thing.usersDisliked = [req.auth.userId]}
+        else {thing.usersDisliked = [];}
+        res.status(200).json(thing);
+      })
       .catch(error => res.status(400).json({ error }));
   }
 
@@ -62,7 +72,19 @@ exports.deleteThing = (req, res, next) => {
 
 exports.getAllThings = (req, res, next) => {
     Thing.find()
-      .then(things => res.status(200).json(things))
+      .then(things => {
+        things.forEach(function(thing){
+          // recherche de userId dans les likes ou dislike de la sauce ( -1 == pas d'occurence )
+          const userLiked = thing.usersLiked.indexOf(req.auth.userId);
+          const userDisliked = thing.usersDisliked.indexOf(req.auth.userId);
+          // n'afficher que l'identifiant de l'utilisateur dans la liste des likes et dislikes, pour confidentialité.
+          if (userLiked > -1){thing.usersLiked = [req.auth.userId]}
+          else {thing.usersLiked = [];}
+          if (userDisliked > -1){thing.usersDisliked = [req.auth.userId]}
+          else {thing.usersDisliked = [];}
+        })
+        res.status(200).json(things);
+      })
       .catch(error => res.status(400).json({ error }));
     }
 
