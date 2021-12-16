@@ -60,6 +60,8 @@ exports.modifyThing = (req, res, next) => {
 exports.deleteThing = (req, res, next) => {
   Thing.findOne({ _id: req.params.id })
     .then(thing => {
+      // si pas le bon ID, erreur
+      if(thing.userId !== req.auth.userId){res.status(401).json({ message: 'Non autorisé !'});return;}
       const filename = thing.imageUrl.split('/images/')[1];
       fs.unlink(`images/${filename}`, () => {
         Thing.deleteOne({ _id: req.params.id })
